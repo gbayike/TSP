@@ -50,6 +50,31 @@ public class GeneticAlgorithm {
     
     }
     
+    public Integer[] mutate(Integer[] array,  int arrayLength){
+        //randomly select two indexes in the array and swap.
+        Random r = new Random();
+        
+        int index1 = r.nextInt(arrayLength);
+        int index2 = r.nextInt(arrayLength);
+        
+        int temp = array[index1];
+        array[index1] = array[index2];
+        array[index2] = temp;
+        
+        return array;
+    }
+    
+    public boolean checkArraySimilarities(Integer[] cityArray, Integer population[][]){
+        boolean similar = false;
+        for(int i = 0; i < population.length; i++){
+            similar = Arrays.equals(population[i], cityArray);
+            if(similar){
+                break;
+            }
+        }
+        return similar;   
+    }
+    
     /*
      * create population
     */ 
@@ -58,12 +83,17 @@ public class GeneticAlgorithm {
         for (int i = 0; i < populationSize; i++) {
             //arr[i] = gen.randomize(gen.cityArray, gen.cityArray.length);
             Integer[] city = randomize(cityArray, cityArray.length);
+            boolean similarity = checkArraySimilarities(city,population);
+//            while(similarity){
+//                
+//            }
 //            System.out.println(Arrays.toString(cityArray));
 //            System.out.println(population[i].length);
 //            System.out.println(cityArrayLength);
             System.arraycopy(city, 0, population[i], 0, cityArrayLength);
 //            double totaldistance = totalDistance(population[i], cityArray.length);
             System.out.println(Arrays.toString(population[i]));
+            System.out.println(similarity);
 //            System.out.println(totaldistance);
         }
     }
@@ -113,8 +143,12 @@ public class GeneticAlgorithm {
     
     public static void main(String[] args) throws FileNotFoundException {
         //GeneticAlgorithm gen = new GeneticAlgorithm("src/test/Resources/test3atsp.txt");
-//        GeneticAlgorithm gen = new GeneticAlgorithm("src/test/Resources/test1tsp.txt");
-        GeneticAlgorithm gen = new GeneticAlgorithm("src/test/Resources/test4-20.txt",10);
+        /**
+         * Initial population should be 2x the city count.
+         */
+        
+//        GeneticAlgorithm gen = new GeneticAlgorithm("src/test/Resources/test1tsp.txt", 8);
+        GeneticAlgorithm gen = new GeneticAlgorithm("src/test/Resources/test4-20.txt", 70);
         
         // System.out.println(gen.euclideanDistance(5, 10, 3, 5));
         
@@ -132,6 +166,10 @@ public class GeneticAlgorithm {
 ////            System.out.println(totaldistance);
 //        }
 //        // loop each individual and get distance
+//        Integer[] Value = {2, 1, 4, 3};
+//        Integer[][] iterator = {{4, 3, 1, 2}, {2, 1, 4, 3}, {1, 3, 2, 4}, {4, 2, 1, 3}, {1, 4, 3, 2}, {4, 2, 1, 3}, {1, 4, 3, 2}, {3, 1, 2, 4}, {4, 3, 1, 2}, {3, 1, 2, 4}, {4, 3, 1, 2}, {3, 1, 2, 4}, {4, 3, 1, 2}, {3, 1, 2, 4}, {4, 2, 3, 1}, {2, 1, 4, 3}, {1, 4, 3, 2}, {4, 2, 1, 3}, {2, 3, 4, 1}, {1, 4, 2, 3}, {3, 1, 4, 2}, {2, 3, 1, 4}, {3, 1, 4, 2}, {2, 3, 1, 4}, {4, 2, 3, 1}};
+//        System.out.println("Does {2, 1, 4, 3} exist: " + gen.checkArraySimilarities(Value,iterator));
+
         gen.populate();
         for(Integer[] individual : gen.population){
             double totaldistance = gen.totalDistance(individual, gen.cityArray.length);
@@ -140,6 +178,8 @@ public class GeneticAlgorithm {
         }
         System.out.println(Arrays.deepToString(gen.population));
         System.out.println(gen.population.length);
+
+
 //        double totalDistance = gen.totalDistance(gen.cityArray, gen.cityArrayLength);
 //        System.out.println(totalDistance);
         //System.out.println(gen.fitnessfunction());
