@@ -8,62 +8,64 @@ package com.mycompany.olugbayikeade.onojobistsp;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author Olugbayike
  */
-public class GeneticAlgorithm {
-    Map<Integer, ArrayList<Integer>> data;
+public class GeneticAlgorithm extends FileScanner{
     Conversions conv = new Conversions();
-    String filePath;
-    FileScanner fs;
-    Set<Integer> keyValues;
-    public Integer[] cityArray;
-    public int cityArrayLength;  
+//    Chromosome[] population; 
+    ArrayList<Chromosome> population;
     int populationSize;
-    Integer population[][];
-    
-    
-
-    public GeneticAlgorithm(Map<Integer, ArrayList<Integer>> data) {
-        this.data = data;
-    }    
+    double totalFitness= 0.0;
+    double totalInverseFitness = 0.0;
+    double probabilityTotal = 0.0;
 
     public GeneticAlgorithm(String filePath, int populationSize) throws FileNotFoundException {
-        this.filePath = filePath;
-        fs = new FileScanner(this.filePath);
-        this.data = fs.data;
-        keyValues = data.keySet();
-        cityArray = keyValues.toArray(new Integer[keyValues.size()]);
-        cityArrayLength = cityArray.length;
-        population = new Integer[populationSize][cityArrayLength];
+        super(filePath);
+        //obchrom = new Chromosome(filePath, cityArray);
         this.populationSize = populationSize;
+        population = new ArrayList<>();
     }
     
     
     
-    public GeneticAlgorithm(){
-    
-    }
-    
-    public Integer[] mutate(Integer[] array,  int arrayLength){
+    /**
+     * Function to swap mutate Chromosomes.
+     */
+    public Chromosome[] mutate(Chromosome[] array,  int arrayLength){
         //randomly select two indexes in the array and swap.
+        Chromosome[] clone = array.clone();
         Random r = new Random();
         
         int index1 = r.nextInt(arrayLength);
         int index2 = r.nextInt(arrayLength);
         
-        int temp = array[index1];
-        array[index1] = array[index2];
-        array[index2] = temp;
+        // To prevent repetiton of the index1 in index 2
+        while (index2 == index1) index2 = r.nextInt(arrayLength);
         
-        return array;
+        System.out.println("insex1: " + index1);
+        System.out.println("insex2: " + index2);
+        
+        Chromosome temp = clone[index1];
+        clone[index1] = clone[index2];
+        clone[index2] = temp;
+        
+        
+        return clone;
     }
     
+    
+//    public double rouletteWheel(Integer[] fitness){
+//        
+//    }
     public boolean checkArraySimilarities(Integer[] cityArray, Integer population[][]){
         boolean similar = false;
         for(int i = 0; i < population.length; i++){
@@ -80,49 +82,77 @@ public class GeneticAlgorithm {
     */ 
     // populate population
     public void populate() throws FileNotFoundException{
+        ArrayList<Chromosome> initialPopulation = new ArrayList<>(); 
         for (int i = 0; i < populationSize; i++) {
-            //arr[i] = gen.randomize(gen.cityArray, gen.cityArray.length);
-            Integer[] city = randomize(cityArray, cityArray.length);
-            boolean similarity = checkArraySimilarities(city,population);
-//            while(similarity){
-//                
-//            }
-//            System.out.println(Arrays.toString(cityArray));
-//            System.out.println(population[i].length);
-//            System.out.println(cityArrayLength);
-            System.arraycopy(city, 0, population[i], 0, cityArrayLength);
-//            double totaldistance = totalDistance(population[i], cityArray.length);
-            System.out.println(Arrays.toString(population[i]));
-            System.out.println(similarity);
-//            System.out.println(totaldistance);
+            Integer[] randomPermutation = randomize(cityArray, cityArray.length);
+            initialPopulation.add(new Chromosome(filePath, randomPermutation));
+//            System.out.println(Arrays.toString(initialPopulation[i].chromosome));
+//            System.out.println(initialPopulation[i].fitness());
         }
+        population = initialPopulation;
     }
     
-      
+    
+    /*
+     * calculate fitness probability
+    */
+    public  void fitnessProbability() throws FileNotFoundException{
+        totalFitness= 0.0;
+        totalInverseFitness = 0.0;
+        probabilityTotal = 0.0;
+        population.forEach((n) -> { try {
+            totalFitness += n.fitness();
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(GeneticAlgorithm.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+
+        population.forEach((n)->{
+            try {
+                n.inverseFitness = totalFitness/n.fitness();
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(GeneticAlgorithm.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            totalInverseFitness += n.inverseFitness;
+        });
+
+        population.forEach((n)->{
+            n.pickProbability = n.inverseFitness/totalInverseFitness;
+        });
+        
+//        var wrapper = new Object(){};
+        population.forEach((n)->{
+            probabilityTotal += n.pickProbability;
+            n.cumulativeProbability = probabilityTotal;
+        });
+    }
+    
+    public ArrayList<Chromosome> rouletteWheel(int picksNum) throws FileNotFoundException{
+        ArrayList<Chromosome> picks = new ArrayList<>();
+        fitnessProbability();
+        for(int i = 0; i < picksNum; i++){
+            Random r = new Random();
+            double value = 0.0; 
+            double selection = r.nextDouble(probabilityTotal);
+            System.out.println(selection);
+            for(int j = 0; j < populationSize;j++){
+               value = population.get(j).cumulativeProbability;  
+               if(value >= selection){
+                  picks.add(population.get(j));
+                  break;
+               }
+            }
+        }
+        return picks;
+    }
     /*
      * calculate distance between points
     */
-    private double euclideanDistance(int x1, int x2, int y1, int y2){
-        double equation = Math.pow((x2-x1),2) + Math.pow((y2 - y1),2);
-        return Math.sqrt(equation);
-    }
     
-    public double totalDistance(Integer arr [], int arrlength) throws FileNotFoundException{
-        double totalDistance = 0;
-        for(int i = 1; i < arrlength; i++){
-            int city1x = fs.cityX(arr[i-1]);
-            int city2x = fs.cityX(arr[i]);
-            
-            int city1y = fs.cityY(arr[i-1]);
-            int city2y = fs.cityY(arr[i]);
-            
-            totalDistance += euclideanDistance(city1x, city2x, city1y, city2y);
-        }        
-        return totalDistance;
-    }
     
     // using Fisher–Yates shuffle Algorithm to shuffle the array of cities to get the initial population
     public Integer[] randomize(Integer arr[], int n){
+        //Integer[] arrdup = arr.clone();
         // Creating a object for Random class
         Random r = new Random();
           
@@ -148,40 +178,42 @@ public class GeneticAlgorithm {
          */
         
 //        GeneticAlgorithm gen = new GeneticAlgorithm("src/test/Resources/test1tsp.txt", 8);
-        GeneticAlgorithm gen = new GeneticAlgorithm("src/test/Resources/test4-20.txt", 70);
+        GeneticAlgorithm gen = new GeneticAlgorithm("src/test/Resources/test4-20.txt", 64);
         
-        // System.out.println(gen.euclideanDistance(5, 10, 3, 5));
-        
-        // create population
-        //Integer population[][] = new Integer[10][gen.cityArrayLength];
-        //Integer population[][] = gen.population;
-        
-        // populate population
-//        for (int i = 0; i < 10; i++) {
-//            //arr[i] = gen.randomize(gen.cityArray, gen.cityArray.length);
-//            Integer[] city = gen.randomize(gen.cityArray, gen.cityArray.length);
-//            System.arraycopy(city, 0, population[i], 0, gen.cityArrayLength);
-////            double totaldistance = gen.totalDistance(arr[i], gen.cityArray.length);
-//            System.out.println(Arrays.toString(population[i]));
-////            System.out.println(totaldistance);
-//        }
-//        // loop each individual and get distance
-//        Integer[] Value = {2, 1, 4, 3};
-//        Integer[][] iterator = {{4, 3, 1, 2}, {2, 1, 4, 3}, {1, 3, 2, 4}, {4, 2, 1, 3}, {1, 4, 3, 2}, {4, 2, 1, 3}, {1, 4, 3, 2}, {3, 1, 2, 4}, {4, 3, 1, 2}, {3, 1, 2, 4}, {4, 3, 1, 2}, {3, 1, 2, 4}, {4, 3, 1, 2}, {3, 1, 2, 4}, {4, 2, 3, 1}, {2, 1, 4, 3}, {1, 4, 3, 2}, {4, 2, 1, 3}, {2, 3, 4, 1}, {1, 4, 2, 3}, {3, 1, 4, 2}, {2, 3, 1, 4}, {3, 1, 4, 2}, {2, 3, 1, 4}, {4, 2, 3, 1}};
-//        System.out.println("Does {2, 1, 4, 3} exist: " + gen.checkArraySimilarities(Value,iterator));
-
         gen.populate();
-        for(Integer[] individual : gen.population){
-            double totaldistance = gen.totalDistance(individual, gen.cityArray.length);
-            System.out.println(Arrays.toString(individual));
-            System.out.println(totaldistance);
-        }
-        System.out.println(Arrays.deepToString(gen.population));
-        System.out.println(gen.population.length);
-
-
-//        double totalDistance = gen.totalDistance(gen.cityArray, gen.cityArrayLength);
-//        System.out.println(totalDistance);
-        //System.out.println(gen.fitnessfunction());
+        System.out.println();
+        //System.out.println(Arrays.deepToString(gen.population));
+        System.out.println(gen.populationSize);
+        ArrayList<Chromosome> population = gen.population;
+        System.out.println();
+        for(Chromosome individual : population){
+            //double totaldistance = gen.totalDistance(individual, gen.cityArray.length);
+            System.out.println(Arrays.toString(individual.chromosome));
+            System.out.println(individual.fitness());
+        }       
+        gen.fitnessProbability();
+        System.out.println();
+        System.out.println(gen.totalFitness);
+        var wrapper = new Object(){double sum = 0.0;};
+        population.forEach((n)->{
+            System.out.print(n.inverseFitness + " , ");
+            wrapper.sum += n.pickProbability;
+            System.out.print(n.pickProbability);
+            System.out.println();
+            System.out.println(n.cumulativeProbability);
+            System.out.println();
+        });
+        System.out.print(wrapper.sum);
+        System.out.println();
+        
+        ArrayList<Chromosome> parent2 = gen.rouletteWheel(2);
+        for(int i = 0; i < 4;i++){
+           ArrayList<Chromosome> parent = gen.rouletteWheel(2);
+           parent.forEach((n)-> { System.out.println(Arrays.toString(n.chromosome) +" "+n.cumulativeProbability);});
+        } 
+        
+//        System.out.println("------Parent 2-----");
+//        parent2.forEach((n)-> { System.out.println(Arrays.toString(n.chromosome) +" "+n.cumulativeProbability);});
+        
     }
 }

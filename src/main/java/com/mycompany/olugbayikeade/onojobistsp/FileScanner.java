@@ -7,6 +7,7 @@ package com.mycompany.olugbayikeade.onojobistsp;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -20,12 +21,16 @@ public class FileScanner{
     // create and use a file reader wrapper in a BufferedReader.
     String filePath;
     Map<Integer, ArrayList<Integer>> data;
+    Set<Integer> keyValues;
+    public Integer[] cityArray;
     /* 
      * @param FilePath -  the path of the file to read.
     */
     public FileScanner(String filePath) throws FileNotFoundException {
         this.filePath = filePath;
         data = ReadtextFromFile();
+        keyValues = data.keySet();
+        cityArray = keyValues.toArray(new Integer[keyValues.size()]);
     }
     
     public String deleteSubString(String str, int index){
@@ -77,22 +82,10 @@ public class FileScanner{
     }
     
     public static void main(String[] args) throws FileNotFoundException {
-//        FileScanner fs = new FileScanner("src/test/Resources/test4-20.txt");
-//        
-//        Map<Integer, ArrayList<Integer>> file = fs.data;
-//        
-//        System.out.println(file);
-//        System.out.println(file.get(2).get(1));
-//        System.out.println(file.size());
-        
-//        int i = 4;
-//        
-//        System.out.println(file);
-//        System.out.println(fs.cityX(3));
-//        System.out.println(fs.cityY(3));
-//        
-//        Set<Integer> keyValues = file.keySet();
-//        for(Integer keyValue: keyValues)
-//            System.out.println(keyValue);
+        FileScanner fs = new FileScanner("src/test/Resources/test4-20.txt");
+        System.out.println(Arrays.toString(fs.cityArray));
+        System.out.println(fs.data);
+        System.out.println(fs.cityX(1));
+        System.out.println(fs.cityY(1));
     }
 }
