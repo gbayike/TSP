@@ -21,12 +21,14 @@ public class Chromosome extends FileScanner{
     double pickProbability;
     double inverseFitness;
     double cumulativeProbability;
+    Random r;
 //    Integer[] cityArray = keyValues.toArray(new Integer[keyValues.size()]);
     
     
     public Chromosome(String filePath, Integer[] randomPermutation) throws FileNotFoundException {
         super(filePath);   
         chromosome = randomPermutation.clone();
+        r = new Random();
 //        System.arraycopy(randomPermutation, 0, chromosome, 0, cityArray.length);
         //generateChromosomes();
     }
@@ -39,7 +41,7 @@ public class Chromosome extends FileScanner{
         //randomly select two indexes in the array and swap.
         Integer[] clone = chromosome.clone();
         int cloneLength = clone.length;
-        Random r = new Random();
+        
         
         int index1 = r.nextInt(cloneLength-1);
         int index2 = r.nextInt(cloneLength);
@@ -47,8 +49,8 @@ public class Chromosome extends FileScanner{
         // To prevent repetiton of the index1 in index 2
         while (index2 == index1) index2 = r.nextInt(cloneLength);
         
-        System.out.println("insex1: " + index1);
-        System.out.println("insex2: " + index2);
+//        System.out.println("insex1: " + index1);
+//        System.out.println("insex2: " + index2);
         
         Integer temp = clone[index1];
         clone[index1] = clone[index2];
