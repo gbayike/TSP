@@ -205,55 +205,6 @@ public class GeneticAlgorithm extends FileScanner{
         return child;   
     }
     
-//    public Integer[] SinglePointOrderedCrossover(ArrayList<Chromosome> parents, int parent1index, int parent2index) throws FileNotFoundException{
-//        ArrayList<Chromosome> clone= new ArrayList<>();
-////        Chromosome parent1;
-////        Chromosome parent2;    
-//        int cityLength = cityArray.length;
-//        Integer[] child = new Integer[cityLength];
-//        Random r = new Random();
-//        int index1 = r.nextInt(cityLength);
-////        int index2 = r.nextInt(cityLength-1);
-//        
-////        while(index1 >= index2){
-////            index1 = r.nextInt(cityLength-1);
-//////            index2 = r.nextInt(cityLength-1);
-////        }
-//        
-//        System.out.println(index1);
-//        System.out.println(index1);
-//        System.out.println("Parent1: " + Arrays.toString(parents.get(parent1index).chromosome));
-//        System.out.println("Parent2: " + Arrays.toString(parents.get(parent2index).chromosome));
-//        
-//        for(int i = 0;i<=index1 ;i++){
-//            child[i] = parents.get(parent1index).chromosome[i];
-//        }
-//        
-//        for(int i = 0; i<cityLength ;i++){
-//            
-//            System.out.println("element "+ i +" in child" + Arrays.asList(child).get(i));
-//        }
-//        int j = 0;
-//        int i = 0;
-//        while(i<cityLength){
-//            int gene = parents.get(parent2index).chromosome[i];
-//            if(!Arrays.asList(child).contains(gene)){
-//                while(j<cityLength){
-//                    if(Arrays.asList(child).get(j) == null){
-//                        child[j] = gene;
-//                        break;
-//                    }
-//                    j++;
-//                    //break;
-//                }
-//            }
-//            i++;
-//        }
-//        System.out.println( "Child: " + Arrays.toString(child));
-//        clone.add(new Chromosome(filePath, child));
-//        return child;   
-//    }
-    
     // using Fisher–Yates shuffle Algorithm to shuffle the array of cities to get the initial population
     public Integer[] randomize(Integer arr[], int n){
         //Integer[] arrdup = arr.clone();
@@ -284,6 +235,12 @@ public class GeneticAlgorithm extends FileScanner{
             if(i==0){
                 Global_best_fitness.chromosome = current_best_fitness.chromosome.clone();
             }
+            if(Global_best_fitness.fitness() > current_best_fitness.fitness()){
+                Global_best_fitness.chromosome = current_best_fitness.chromosome.clone();
+            }
+            
+            
+            
         }
         System.out.println("Global fitness" + Arrays.toString( Global_best_fitness.chromosome) +" "+Global_best_fitness.fitness());
         
