@@ -23,9 +23,12 @@ public class FileScanner{
     Map<Integer, ArrayList<Integer>> data;
     Set<Integer> keyValues;
     public Integer[] cityArray;
-    /* 
+    /** 
+     * FileScanner constructor  
+     * 
      * @param FilePath -  the path of the file to read.
-    */
+     */
+    
     public FileScanner(String filePath) throws FileNotFoundException {
         this.filePath = filePath;
         data = ReadtextFromFile();
@@ -81,11 +84,4 @@ public class FileScanner{
         return data.get(cityno).get(1);
     }
     
-    public static void main(String[] args) throws FileNotFoundException {
-        FileScanner fs = new FileScanner("src/test/Resources/test4-20.txt");
-        System.out.println(Arrays.toString(fs.cityArray));
-        System.out.println(fs.data);
-        System.out.println(fs.cityX(1));
-        System.out.println(fs.cityY(1));
-    }
 }

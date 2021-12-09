@@ -13,9 +13,4 @@ public class Conversions {
     public double inttoDouble(int data){
         return Double.valueOf(data);
     }
-    
-    public static void main(String[] args) {
-        Conversions conv = new Conversions();
-        System.err.println(conv.inttoDouble(11));
-    }
 }

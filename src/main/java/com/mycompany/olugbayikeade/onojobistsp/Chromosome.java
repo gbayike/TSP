@@ -6,6 +6,7 @@
 package com.mycompany.olugbayikeade.onojobistsp;
 
 import java.io.FileNotFoundException;
+import static java.lang.Math.random;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.logging.Level;
@@ -15,63 +16,67 @@ import java.util.logging.Logger;
  *
  * @author Olugbayike
  */
-public class Chromosome extends FileScanner{
+public class Chromosome extends FileScanner implements Comparable<Chromosome> {
     Integer chromosome[];
-//    double fitness;
-    double pickProbability;
-    double inverseFitness;
-    double cumulativeProbability;
+    private boolean isFitnessChanged = true;
     Random r;
-//    Integer[] cityArray = keyValues.toArray(new Integer[keyValues.size()]);
+    private Random random;
+    private double inverseFitness;
     
-    
+    /**
+     *  Constructor for chromosomes
+     * @param filePath - file path to get data from
+     * @param randomPermutation - the random permutation of city sequence in array
+     * @throws FileNotFoundException 
+     */
     public Chromosome(String filePath, Integer[] randomPermutation) throws FileNotFoundException {
         super(filePath);   
         chromosome = randomPermutation.clone();
         r = new Random();
+        inverseFitness();
 //        System.arraycopy(randomPermutation, 0, chromosome, 0, cityArray.length);
         //generateChromosomes();
-    }
-//    public Chromosome(Integer[] chromosome, String filePath) throws FileNotFoundException {
-//        super(filePath);
-//        this.chromosome = chromosome;
-//    }
+    }    
     
-    public void mutate(){
-        //randomly select two indexes in the array and swap.
-        Integer[] clone = chromosome.clone();
-        int cloneLength = clone.length;
-        
-        
-        int index1 = r.nextInt(cloneLength-1);
-        int index2 = r.nextInt(cloneLength);
-        
-        // To prevent repetiton of the index1 in index 2
-        while (index2 == index1) index2 = r.nextInt(cloneLength);
-        
-//        System.out.println("insex1: " + index1);
-//        System.out.println("insex2: " + index2);
-        
-        Integer temp = clone[index1];
-        clone[index1] = clone[index2];
-        clone[index2] = temp;
-        
-        
-        chromosome = clone.clone();
+    /**
+     * Shuffles the cities in the Chromosome.
+     */
+    void shuffle () {
+        for (int i = 0; i < chromosome.length; i++) {
+            swap(i, random.nextInt(chromosome.length));
+        }
     }
     
+    void shuffle(int j, int k){
+        swap(j, k);
+    }
+    
+    
+    /**
+     * Helper method for swapping two Cities in a Chromosome to change the tour.
+     * @param array     the array of Cities to do the swap in
+     * @param i         the index of the first City
+     * @param j         the index of the second City
+     */
+    void swap (int i, int j) {
+        int temp = chromosome[i];
+        chromosome[i] = chromosome[j];
+        chromosome[j] = temp;
+    }
     /**
      *
      */
     private double euclideanDistance(int x1, int x2, int y1, int y2){
-        double equation = Math.pow((x2-x1),2) + Math.pow((y2 - y1),2);
+        int x = x2 - x1;
+        int y = y2 - y1;
+        double equation = Math.pow(x,2) + Math.pow(y,2);
         return Math.sqrt(equation);
     }
     
     public double fitness(){
         double totalDistance = 0;
-        
-        for(int i = 1; i < chromosome.length; i++){
+        int n = chromosome.length;
+        for(int i = 1; i < n; i++){
             int city1x = cityX(chromosome[i-1]);
             int city2x = cityX(chromosome[i]);
             
@@ -82,10 +87,28 @@ public class Chromosome extends FileScanner{
             
         }
         
+        int city1x = cityX(chromosome[0]);
+        int city2x = cityX(chromosome[n-1]);
+
+        int city1y = cityY(chromosome[0]);
+        int city2y = cityY(chromosome[n-1]);
+        
+        totalDistance += euclideanDistance(city1x, city2x, city1y, city2y);
         
         return totalDistance;
         
     }
     
-    
+    public double inverseFitness(){
+        if (isFitnessChanged) {
+            inverseFitness = (1 / fitness() * 10000);
+            isFitnessChanged = false;
+        }
+        return inverseFitness;
+    }
+
+    @Override
+    public int compareTo(Chromosome o) {
+        return (int)(fitness() - o.fitness());
+    }
 }
