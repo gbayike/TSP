@@ -555,8 +555,14 @@ public class GeneticAlgorithm extends FileScanner{
         
 //        GeneticAlgorithm gen = new GeneticAlgorithm("src/test/Resources/test1tsp.txt", 12, 0.4, 0.9,1,100);
 //        GeneticAlgorithm gen = new GeneticAlgorithm("src/test/Resources/test2atsp.txt", 24, 0.4, 0.7,1,100);
-//        GeneticAlgorithm gen = new GeneticAlgorithm("src/test/Resources/test3atsp.txt", 27, 0.4, 0.7,1,100);
-        GeneticAlgorithm gen = new GeneticAlgorithm("src/test/Resources/test4-20.txt", 96 , 0.4, 0.7,1, 2000);
+//        GeneticAlgorithm gen = new GeneticAlgorithm("src/test/Resources/test3atsp.txt", 27, 0.4, 0.7,1,200);
+//        GeneticAlgorithm gen = new GeneticAlgorithm("src/test/Resources/test1-21.txt", 36, 0.4, 0.7,1,200);
+//        GeneticAlgorithm gen = new GeneticAlgorithm("src/test/Resources/test2-21.txt", 70, 0.4, 0.7,1,400);
+//        GeneticAlgorithm gen = new GeneticAlgorithm("src/test/Resources/test3-21.txt", 102, 0.4, 0.7,2,500);
+//        GeneticAlgorithm gen = new GeneticAlgorithm("src/test/Resources/test3-21.txt", 136, 0.4, 0.7,1,1000);
+//        GeneticAlgorithm gen = new GeneticAlgorithm("src/test/Resources/test4-21.txt", 324, 0.4, 0.7, 1, 2000);
+        GeneticAlgorithm gen = new GeneticAlgorithm("src/test/Resources/test4-21.txt", 216, 0.4, 0.7, 1, 1000);
+//        GeneticAlgorithm gen = new GeneticAlgorithm("src/test/Resources/test4-20.txt", 96 , 0.4, 0.7,1, 2000);
         
         gen.run();
         System.out.println();
